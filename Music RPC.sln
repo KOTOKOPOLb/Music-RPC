@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Music RPC", "Music RPC\Music RPC.csproj", "{6C07B65F-884A-4D13-B241-BC40F9CE1042}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C07B65F-884A-4D13-B241-BC40F9CE1042}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C07B65F-884A-4D13-B241-BC40F9CE1042}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C07B65F-884A-4D13-B241-BC40F9CE1042}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C07B65F-884A-4D13-B241-BC40F9CE1042}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {313C54F1-B66F-42BC-94CF-0A883E2241D1}
+	EndGlobalSection
+EndGlobal

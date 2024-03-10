@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <Authors>KOTOKOPOLb</Authors>
+    <Company />
+	<Title>Music RPC</Title>
+    <Description>Вывод музыки в Discord RPC</Description>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <PlatformTarget>x64</PlatformTarget>
+    <Copyright>MIT</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\Home\.nuget\packages\dubya.windowsmediacontroller\2.5.3\contentFiles\any\net472\Icon.ico" />
+    <Content Remove="C:\Users\Home\.nuget\packages\km.yandex.music.api\1.8.0\contentFiles\any\netstandard2.0\README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
+    <PackageReference Include="Dubya.WindowsMediaController" Version="2.5.3" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.3233" />
+  </ItemGroup>
+</Project>
