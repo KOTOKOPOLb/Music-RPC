@@ -26,6 +26,7 @@ namespace Music_RPC
             {
                 Title = args.Title;
                 Artist = args.Artist;
+                IsPaused = false;
                 Console.WriteLine($"Now listening to {Artist} - {Title}");
                 ImageUrl = GetTrackImage(Title, Artist).Result;
                 UpdateStatus();
