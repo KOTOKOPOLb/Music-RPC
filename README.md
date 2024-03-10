@@ -1,4 +1,4 @@
-﻿[Russian] / [[English]](https://github.com/KOTOKOPOLb/Music-RPC/edit/master/README_en.md)
+﻿[Russian] / [[English]](https://github.com/KOTOKOPOLb/Music-RPC/blob/master/README_en.md)
 
 ------------
 
@@ -6,7 +6,7 @@
 
 Приложение для отображения музыки, которую вы сейчас слушаете на компьютере в статусе Discord RPC.
 
-![image](https://github.com/KOTOKOPOLb/Music-RPC/raw/main/imgages/screen.png)
+![image](https://github.com/KOTOKOPOLb/Music-RPC/blob/master/images/screen.png)
 
 Есть множество похожие RPC которые показывают текущий музыку, но у них есть разные проблемы. Поэтому я решил сделал код который берёт информацию из `Windows.Media.Control` и отображает её в статусе Discord.
 
