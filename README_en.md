@@ -1,4 +1,4 @@
-﻿[[Russian]](https://github.com/KOTOKOPOLb/Music-RPC/edit/master/README.md) / [English]
+﻿[[Russian]](https://github.com/KOTOKOPOLb/Music-RPC/blob/master/README.md) / [English]
 
 ------------
 
@@ -6,7 +6,7 @@
 
 This application is designed to display the music you are currently listening to on your computer in your Discord status, using Rich Presence.
 
-![image](https://github.com/KOTOKOPOLb/Music-RPC/raw/main/imgages/screen.png)
+![image](https://github.com/KOTOKOPOLb/Music-RPC/blob/master/images/screen.png)
 
 There are many similar RPCs that display the current music playing, but they may have various issues. That's why I created a code that retrieves information from the `Windows.Media.Control`, and displays it in your Discord status.
 
