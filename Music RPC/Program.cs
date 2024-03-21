@@ -18,14 +18,15 @@ namespace Music_RPC
         private bool IsPaused;
         private string ImageUrl = "music-icon";
 
+        // Основной код
         public void Run()
         {
             client.Initialize();
 
             mediaManager.OnAnyMediaPropertyChanged += (sender, args) =>
             {
-                Title = args.Title;
-                Artist = args.Artist;
+                Title = args.Title.Length > 64 ? args.Title.Substring(0, 61) + "..." : args.Title;
+                Artist = args.Artist.Length > 64 ? args.Artist.Substring(0, 61) + "..." : args.Artist;
                 IsPaused = false;
                 Console.WriteLine($"Now listening to {Artist} - {Title}");
                 ImageUrl = GetTrackImage(Title, Artist).Result;
@@ -56,6 +57,7 @@ namespace Music_RPC
             client.Dispose();
         }
 
+        // Обновление статуса в Discord
         private void UpdateStatus()
         {
             RichPresence presence;
@@ -93,6 +95,7 @@ namespace Music_RPC
             client.SetPresence(presence);
         }
 
+        // Получения ссылки на картинку трека
         private async Task<string> GetTrackImage(string track, string artist)
         {
             string query = $"{track} - {artist}";
