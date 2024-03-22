@@ -13,6 +13,9 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <PlatformTarget>x64</PlatformTarget>
     <Copyright>MIT</Copyright>
+    <Version>1.2</Version>
+    <AssemblyVersion>1.2</AssemblyVersion>
+    <FileVersion>1.2</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

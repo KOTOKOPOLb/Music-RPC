@@ -99,7 +99,7 @@ namespace Music_RPC
         private async Task<string> GetTrackImage(string track, string artist)
         {
             string query = $"{track} - {artist}";
-            string type = "all";
+            string type = "track";
             int page = 0;
             bool nocorrect = false;
 
@@ -115,7 +115,7 @@ namespace Music_RPC
                     {
                         JObject parsedJson = JObject.Parse(await reader.ReadToEndAsync());
 
-                        JToken coverUriToken = parsedJson["result"]["best"]["result"]["coverUri"];
+                        JToken coverUriToken = parsedJson["result"]["tracks"]["results"][0]["coverUri"];
                         string coverUri = coverUriToken?.ToString().Replace("%%", "400x400");
 
                         if (coverUri == null)
