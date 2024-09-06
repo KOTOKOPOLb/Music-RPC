@@ -30,6 +30,8 @@ If you encounter any issues, please report them on the [Issues](https://github.c
 
 - Add an option to hide the console in the system tray
 
+- Change "Playing" to "Listening"
+
 ------------
 
 >The code may not be perfect, but feel free to suggest improvements. I will consider them.

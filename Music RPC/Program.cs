@@ -14,9 +14,10 @@ namespace Music_RPC
         private readonly MediaManager mediaManager = new MediaManager();
         private string Title;
         private string Artist;
-        private int TimeLeft;
+        private int Position;
         private bool IsPaused;
         private string ImageUrl = "music-icon";
+        private string TrackUrl;
 
         // Основной код
         public void Run()
@@ -35,8 +36,8 @@ namespace Music_RPC
 
             mediaManager.OnAnyTimelinePropertyChanged += (sender, args) =>
             {
-                TimeLeft = Convert.ToInt32((args.EndTime - args.Position).TotalSeconds);
-                Console.WriteLine($"{TimeLeft} seconds left || Pause = {IsPaused}");
+                Position = Convert.ToInt32(args.Position.TotalSeconds);
+                Console.WriteLine($"{(int)args.Position.Minutes:D2}:{(int)args.Position.Seconds:D2} passed || Pause = {IsPaused}");
                 UpdateStatus();
             };
 
@@ -60,37 +61,25 @@ namespace Music_RPC
         // Обновление статуса в Discord
         private void UpdateStatus()
         {
-            RichPresence presence;
+            var presence = new RichPresence
+            {
+                Details = IsPaused ? "[Pause] " + Title : Title,
+                State = Artist,
+                Assets = new Assets
+                {
+                    LargeImageKey = ImageUrl,
+                    LargeImageText = IsPaused ? "Music on pause" : "Listening to music",
+                    SmallImageKey = IsPaused ? "pause" : null,
+                    SmallImageText = IsPaused ? "Pause" : null
+                },
+                Timestamps = IsPaused ? new Timestamps(DateTime.UtcNow.AddSeconds(-Position), DateTime.UtcNow) : new Timestamps(DateTime.UtcNow.AddSeconds(-Position)),
 
-            if (IsPaused)
-            {
-                presence = new RichPresence
+                Buttons = new[]
                 {
-                    Details = "[Pause] " + Title,
-                    State = Artist,
-                    Assets = new Assets
-                    {
-                        LargeImageKey = ImageUrl,
-                        LargeImageText = "Music on pause",
-                        SmallImageKey = "pause",
-                        SmallImageText = "Pause"
-                    }
-                };
-            }
-            else
-            {
-                presence = new RichPresence
-                {
-                    Details = Title,
-                    State = Artist,
-                    Timestamps = Timestamps.FromTimeSpan(TimeLeft),
-                    Assets = new Assets
-                    {
-                        LargeImageKey = ImageUrl,
-                        LargeImageText = "Listening to music"
-                    }
-                };
-            }
+                    new Button { Label = "Track", Url = TrackUrl },
+                    //new Button { Label = "App", Url = "https://github.com/KOTOKOPOLb/Music-RPC" }
+                }
+            };
 
             client.SetPresence(presence);
         }
@@ -106,24 +95,20 @@ namespace Music_RPC
             string url = $"https://api.music.yandex.net/search?type={type}&text={query}&page={page}&nocorrect={nocorrect}";
 
             var request = WebRequest.Create(url);
-
-            using (var response = await request.GetResponseAsync())
+            using (var response = await request.GetResponseAsync().ConfigureAwait(false))
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream))
             {
-                using (var stream = response.GetResponseStream())
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        JObject parsedJson = JObject.Parse(await reader.ReadToEndAsync());
+                JObject parsedJson = JObject.Parse(await reader.ReadToEndAsync());
+                JToken coverUriToken = parsedJson["result"]["tracks"]["results"][0]["coverUri"];
+                string coverUri = coverUriToken?.ToString().Replace("%%", "400x400");
 
-                        JToken coverUriToken = parsedJson["result"]["tracks"]["results"][0]["coverUri"];
-                        string coverUri = coverUriToken?.ToString().Replace("%%", "400x400");
+                //Get Track URL
+                JToken trackIdToken = parsedJson["result"]["tracks"]["results"][0]["id"];
+                JToken albumIdToken = parsedJson["result"]["tracks"]["results"][0]["albums"][0]["id"];
+                TrackUrl = $"https://music.yandex.ru/album/{albumIdToken}/track/{trackIdToken}";
 
-                        if (coverUri == null)
-                            return "music-icon";
-
-                        return "https://" + coverUri;
-                    }
-                }
+                return coverUri != null ? "https://" + coverUri : "music-icon";
             }
         }
 
