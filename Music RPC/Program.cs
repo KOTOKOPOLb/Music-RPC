@@ -15,30 +15,45 @@ namespace Music_RPC
         private string Title;
         private string Artist;
         private int Position;
+        private int Duration;
         private bool IsPaused;
         private string ImageUrl = "music-icon";
         private string TrackUrl;
 
         // Основной код
-        public void Run()
+        private void Run()
         {
             client.Initialize();
 
-            mediaManager.OnAnyMediaPropertyChanged += (sender, args) =>
+            mediaManager.OnAnyMediaPropertyChanged += async (sender, args) =>
             {
-                Title = args.Title.Length > 64 ? args.Title.Substring(0, 61) + "..." : args.Title;
-                Artist = args.Artist.Length > 64 ? args.Artist.Substring(0, 61) + "..." : args.Artist;
-                IsPaused = false;
-                Console.WriteLine($"Now listening to {Artist} - {Title}");
-                ImageUrl = GetTrackImage(Title, Artist).Result;
-                UpdateStatus();
+                string tempTitle = Truncate(args.Title);
+                string tempArtist = Truncate(args.Artist);
+
+                if (Title != tempTitle || Artist != tempArtist)
+                {
+                    Title = tempTitle;
+                    Artist = tempArtist;
+                    IsPaused = false;
+
+                    Console.WriteLine($"Now listening to {Artist} - {Title}"); 
+                    ImageUrl = GetTrackImageAndUrl(Title, Artist).Result;
+                    UpdateStatus();
+                }
             };
 
             mediaManager.OnAnyTimelinePropertyChanged += (sender, args) =>
             {
-                Position = Convert.ToInt32(args.Position.TotalSeconds);
-                Console.WriteLine($"{(int)args.Position.Minutes:D2}:{(int)args.Position.Seconds:D2} passed || Pause = {IsPaused}");
-                UpdateStatus();
+                int tempPosition = Convert.ToInt32(args.Position.TotalSeconds);
+                int tempDuration = Convert.ToInt32(args.EndTime.TotalSeconds);
+
+                if (Position != tempPosition || Duration != tempDuration)
+                {
+                    Position = tempPosition;
+                    Duration = tempDuration;
+                    Console.WriteLine($"{(int)args.Position.Minutes:D2}:{(int)args.Position.Seconds:D2} passed || Pause = {IsPaused}");
+                    UpdateStatus();
+                }
             };
 
             mediaManager.OnAnyPlaybackStateChanged += (sender, args) =>
@@ -48,15 +63,17 @@ namespace Music_RPC
             };
 
             client.OnReady += (sender, e) => Console.WriteLine($"Received Ready from user {e.User.Username}");
-
             client.OnPresenceUpdate += (sender, e) => Console.WriteLine("Received Update!");
 
             mediaManager.Start();
-
             Console.ReadLine();
+
             mediaManager.Dispose();
             client.Dispose();
         }
+
+        // Обрезание текста
+        private string Truncate(string input) => input.Length > 64 ? input.Substring(0, 61) + "..." : input;
 
         // Обновление статуса в Discord
         private void UpdateStatus()
@@ -68,24 +85,25 @@ namespace Music_RPC
                 Assets = new Assets
                 {
                     LargeImageKey = ImageUrl,
-                    LargeImageText = IsPaused ? "Music on pause" : "Listening to music",
+                    LargeImageText = IsPaused ? "Music on pause" : null,
                     SmallImageKey = IsPaused ? "pause" : null,
                     SmallImageText = IsPaused ? "Pause" : null
                 },
-                Timestamps = IsPaused ? new Timestamps(DateTime.UtcNow.AddSeconds(-Position), DateTime.UtcNow) : new Timestamps(DateTime.UtcNow.AddSeconds(-Position)),
-
+                Timestamps = IsPaused ? new Timestamps(DateTime.UtcNow.AddSeconds(-Position), DateTime.UtcNow) : new Timestamps(DateTime.UtcNow.AddSeconds(-Position), DateTime.UtcNow.AddSeconds(Duration - Position)),
+                Type = ActivityType.Listening,
                 Buttons = new[]
                 {
-                    new Button { Label = "Track", Url = TrackUrl },
-                    //new Button { Label = "App", Url = "https://github.com/KOTOKOPOLb/Music-RPC" }
+                    new Button { Label = "Track", Url = TrackUrl ?? $"https://google.com/search?q={Title}+{Artist}" },
+                    new Button { Label = "App", Url = "https://github.com/KOTOKOPOLb/Music-RPC" }
                 }
             };
 
             client.SetPresence(presence);
+            Console.WriteLine("Update sent!");
         }
 
-        // Получения ссылки на картинку трека
-        private async Task<string> GetTrackImage(string track, string artist)
+        // Получения ссылки на трек и его картинку
+        private async Task<string> GetTrackImageAndUrl(string track, string artist)
         {
             string query = $"{track} - {artist}";
             string type = "track";
@@ -103,7 +121,6 @@ namespace Music_RPC
                 JToken coverUriToken = parsedJson["result"]["tracks"]["results"][0]["coverUri"];
                 string coverUri = coverUriToken?.ToString().Replace("%%", "400x400");
 
-                //Get Track URL
                 JToken trackIdToken = parsedJson["result"]["tracks"]["results"][0]["id"];
                 JToken albumIdToken = parsedJson["result"]["tracks"]["results"][0]["albums"][0]["id"];
                 TrackUrl = $"https://music.yandex.ru/album/{albumIdToken}/track/{trackIdToken}";
@@ -114,7 +131,7 @@ namespace Music_RPC
 
         static void Main()
         {
-            Console.Title = "Music Rpc";
+            Console.Title = "Music RPC";
             Console.Write("Music Rpc ", Console.ForegroundColor = ConsoleColor.Red);
             Console.WriteLine("By KOTOKOPOLb", Console.ForegroundColor = ConsoleColor.Cyan);
             Console.WriteLine("", Console.ForegroundColor = ConsoleColor.White);

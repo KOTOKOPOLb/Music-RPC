@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
+    <RootNamespace>Music_RPC_GUI</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\Home\.nuget\packages\dubya.windowsmediacontroller\2.5.5\contentFiles\any\net8.0-windows10.0.22000\Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dubya.WindowsMediaController" Version="2.5.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DiscordRPC">
+      <HintPath>..\..\discord-rpc-csharp\DiscordRPC\bin\Debug\netstandard2.0\DiscordRPC.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

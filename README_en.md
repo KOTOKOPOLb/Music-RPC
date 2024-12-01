@@ -28,9 +28,11 @@ If you encounter any issues, please report them on the [Issues](https://github.c
 
 ## TODO
 
-- Add an option to hide the console in the system tray
+- ~~Add an option to hide the console in the system tray~~
 
-- Change "Playing" to "Listening"
+- ~~Change "Playing" to "Listening"~~
+
+- Finish the gui version
 
 ------------
 
