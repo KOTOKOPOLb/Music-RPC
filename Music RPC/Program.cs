@@ -19,6 +19,7 @@ namespace Music_RPC
         private bool IsPaused;
         private string ImageUrl = "music-icon";
         private string TrackUrl;
+        private const string ReplaceSymbol = "#";
 
         // Основной код
         private void Run()
@@ -27,8 +28,8 @@ namespace Music_RPC
 
             mediaManager.OnAnyMediaPropertyChanged += async (sender, args) =>
             {
-                string tempTitle = Truncate(args.Title);
-                string tempArtist = Truncate(args.Artist);
+                string tempTitle = args.Title;
+                string tempArtist = args.Artist;
 
                 if (Title != tempTitle || Artist != tempArtist)
                 {
@@ -80,8 +81,8 @@ namespace Music_RPC
         {
             var presence = new RichPresence
             {
-                Details = IsPaused ? "[Pause] " + Title : Title,
-                State = Artist,
+                Details = IsPaused ? "[Pause] " + Truncate(Title) : Truncate(Title),
+                State = Truncate(Artist),
                 Assets = new Assets
                 {
                     LargeImageKey = ImageUrl,
@@ -105,27 +106,44 @@ namespace Music_RPC
         // Получения ссылки на трек и его картинку
         private async Task<string> GetTrackImageAndUrl(string track, string artist)
         {
-            string query = $"{track} - {artist}";
+            string query = $"{track.Replace(ReplaceSymbol, "")} - {artist.Replace(ReplaceSymbol, "")}";
             string type = "track";
             int page = 0;
             bool nocorrect = false;
 
             string url = $"https://api.music.yandex.net/search?type={type}&text={query}&page={page}&nocorrect={nocorrect}";
 
-            var request = WebRequest.Create(url);
-            using (var response = await request.GetResponseAsync().ConfigureAwait(false))
-            using (var stream = response.GetResponseStream())
-            using (var reader = new StreamReader(stream))
+            try
             {
-                JObject parsedJson = JObject.Parse(await reader.ReadToEndAsync());
-                JToken coverUriToken = parsedJson["result"]["tracks"]["results"][0]["coverUri"];
-                string coverUri = coverUriToken?.ToString().Replace("%%", "400x400");
+                var request = WebRequest.Create(url);
+                using (var response = await request.GetResponseAsync().ConfigureAwait(false))
+                using (var stream = response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    JObject parsedJson = JObject.Parse(await reader.ReadToEndAsync());
+                    JToken coverUriToken = parsedJson["result"]["tracks"]["results"][0]["coverUri"];
+                    string coverUri = coverUriToken?.ToString().Replace("%%", "400x400");
 
-                JToken trackIdToken = parsedJson["result"]["tracks"]["results"][0]["id"];
-                JToken albumIdToken = parsedJson["result"]["tracks"]["results"][0]["albums"][0]["id"];
-                TrackUrl = $"https://music.yandex.ru/album/{albumIdToken}/track/{trackIdToken}";
+                    JToken trackIdToken = parsedJson["result"]["tracks"]["results"][0]["id"];
+                    JToken albumIdToken = parsedJson["result"]["tracks"]["results"][0]["albums"][0]["id"];
+                    TrackUrl = $"https://music.yandex.ru/album/{albumIdToken}/track/{trackIdToken}";
 
-                return coverUri != null ? "https://" + coverUri : "music-icon";
+                    return coverUri != null ? "https://" + coverUri : "music-icon";
+                }
+            }
+            catch (WebException ex)
+            {
+                string errorMessage;
+                if (ex.Response is HttpWebResponse errorResponse)
+                {
+                    int statusCode = (int)errorResponse.StatusCode;
+                    errorMessage = $"HTTP Error {statusCode}: {errorResponse.StatusDescription}";
+                }
+                else
+                    errorMessage = ex.Message;
+
+                Console.WriteLine(errorMessage);
+                return "music-icon";
             }
         }
 
